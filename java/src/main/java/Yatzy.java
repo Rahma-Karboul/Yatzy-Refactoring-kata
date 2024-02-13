@@ -1,4 +1,7 @@
 import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Yatzy {
     protected int[] dice;
@@ -13,11 +16,11 @@ public class Yatzy {
     }
 
     public static int chance(int d1, int d2, int d3, int d4, int d5) {
-        return d1 + d2 + d3 + d4 + d5;
+        return sumOfAllDice(d1, d2, d3, d4, d5);
     }
 
-    public static int yatzy(int... dice) {
-        int[] counts = countOccurrences(dice);
+    public static int yatzy(int d1, int d2, int d3, int d4, int d5) {
+        int[] counts = countOccurrences(d1, d2, d3, d4, d5);
         for (int count : counts) {
             if (count == 5) {
                 return 50;
@@ -39,34 +42,24 @@ public class Yatzy {
     }
 
     public int fours() {
-        int sum;
-        sum = 0;
-        for (int at = 0; at != 5; at++) {
-            if (dice[at] == 4) {
-                sum += 4;
-            }
-        }
-        return sum;
-    }
-
-    public int fives() {
-        int s = 0;
-        int i;
-        for (i = 0; i < dice.length; i++)
-            if (dice[i] == 5)
-                s = s + 5;
-        return s;
-    }
-
-    public int sixes() {
         int sum = 0;
+
         for (int die : dice)
-            if (die == 6)
-                sum = sum + 6;
+            if (die == 4)
+                sum += 4;
+
         return sum;
     }
 
-    public static int score_pair(int d1, int d2, int d3, int d4, int d5) {
+    public static int fives(int d1, int d2, int d3, int d4, int d5) {
+        return sumOfSpecificNumber(d1, d2, d3, d4, d5, 5);
+    }
+
+    public static int sixes(int d1, int d2, int d3, int d4, int d5) {
+        return sumOfSpecificNumber(d1, d2, d3, d4, d5, 6);
+    }
+
+    public static int pair(int d1, int d2, int d3, int d4, int d5) {
         int[] counts = countOccurrences(d1, d2, d3, d4, d5);
 
         for (int i = 5; i >= 0; i--) {
@@ -78,7 +71,7 @@ public class Yatzy {
         return 0; // No pair found
     }
 
-    public static int two_pair(int d1, int d2, int d3, int d4, int d5) {
+    public static int two_pairs(int d1, int d2, int d3, int d4, int d5) {
         int[] counts = countOccurrences(d1, d2, d3, d4, d5);
         int pairCount = 0;
         int score = 0;
@@ -95,15 +88,40 @@ public class Yatzy {
     }
 
     public static int three_of_a_kind(int d1, int d2, int d3, int d4, int d5) {
-        return 0;
+        int[] diceValues = { d1, d2, d3, d4, d5 };
+        Map<Integer, Long> occurrences = Arrays.stream(diceValues)
+                .boxed()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        // Recherche de la première valeur avec au moins trois occurrences
+        int result = occurrences.entrySet().stream()
+                .filter(entry -> entry.getValue() >= 3)
+                .mapToInt(Map.Entry::getKey)
+                .findFirst()
+                .orElse(0);
+
+        // Calcul du score (somme des trois occurrences)
+        return result * 3;
     }
 
     public static int four_of_a_kind(int d1, int d2, int d3, int d4, int d5) {
-        return 0;
+        int[] diceValues = { d1, d2, d3, d4, d5 };
+        Map<Integer, Long> occurrences = Arrays.stream(diceValues)
+                .boxed()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        // Recherche de la première valeur avec au moins quatre occurrences
+        int result = occurrences.entrySet().stream()
+                .filter(entry -> entry.getValue() >= 4)
+                .mapToInt(Map.Entry::getKey)
+                .findFirst()
+                .orElse(0);
+
+        return result * 4;
     }
 
     public static int smallStraight(int d1, int d2, int d3, int d4, int d5) {
-        int[] sortedDice = {d1, d2, d3, d4, d5};
+        int[] sortedDice = { d1, d2, d3, d4, d5 };
         Arrays.sort(sortedDice);
 
         for (int i = 0; i < sortedDice.length - 1; i++) {
@@ -161,16 +179,12 @@ public class Yatzy {
 
     private static int sumOfSpecificNumber(int d1, int d2, int d3, int d4, int d5, int number) {
         int sum = 0;
-        if (d1 == number)
-            sum += number;
-        if (d2 == number)
-            sum += number;
-        if (d3 == number)
-            sum += number;
-        if (d4 == number)
-            sum += number;
-        if (d5 == number)
-            sum += number;
+        int[] diceValues = { d1, d2, d3, d4, d5 };
+
+        for (int die : diceValues)
+            if (die == number)
+                sum += number;
+
         return sum;
     }
 }
