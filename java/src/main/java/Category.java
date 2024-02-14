@@ -1,0 +1,17 @@
+public enum Category {
+    CHANCE,
+    YATZY,
+    ONES,
+    TWOS,
+    THREES,
+    FOURS,
+    FIVES,
+    SIXES,
+    PAIR,
+    TWOPARIES,
+    THREEOFAKIND,
+    FOUROFAKIND,
+    SMALLSTRAIGHT,
+    LARGESTRAIGHT,
+    FULLHOUSE,
+}
