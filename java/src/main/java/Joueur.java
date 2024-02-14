@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -9,21 +10,24 @@ public class Joueur {
 
     public void Jouer() throws CategoryNotFoundException {
     int currentRoll = 1;
-    int[] currentDice;
+    categoriesInput = new HashSet<>();
 
     try (Scanner scanner = new Scanner(System.in)) {
         while (currentRoll <= maxRollNumber){
             System.out.println("\nNouveau tour:");
 
             // Demander au joueur d'entrer manuellement les valeurs des dés
-            currentDice = inputDiceValues(scanner);
+            int[] currentDice = inputDiceValues(scanner);
             System.out.println("Résultat du lancer : " + Arrays.toString(currentDice));
 
             // Proposer au joueur de choisir une catégorie
             Category category = inputCategory(scanner);
 
             // Calculer le score pour le choix de catégorie
-            int scoreCategory = calculeScore(new Yatzy(currentDice[0],currentDice[1],currentDice[2],currentDice[3],currentDice[4]));
+            Yatzy yatzy = new Yatzy(currentDice[0],currentDice[1],currentDice[2],currentDice[3],currentDice[4]);
+            yatzy.setCategory(category);
+            System.out.println(yatzy.getCategory());
+            int scoreCategory = calculeScore(yatzy);
             score += scoreCategory;
             // Afficher le score
             System.out.println("Score pour la catégorie '" + category + "': " + scoreCategory);
@@ -32,43 +36,46 @@ public class Joueur {
     }
 }
     public int calculeScore(Yatzy yatzy) throws CategoryNotFoundException {
-        switch(Yatzy.getCategory()){
-            case ONES -> score += yatzy.ones();
-            case TWOS -> score += yatzy.twos();
-            case THREES -> score += yatzy.threes();
-            case FOURS -> score += yatzy.fours();
-            case FIVES -> score += yatzy.fives();
-            case SIXES -> score += yatzy.sixes();
-            case PAIR -> score += yatzy.pair();
-            case TWOPARIES -> score += yatzy.two_pairs();
-            case YATZY -> score += yatzy.yatzy();
-            case CHANCE -> score += yatzy.chance();
-            case FULLHOUSE -> score += yatzy.fullHouse();
-            case FOUROFAKIND -> score += yatzy.four_of_a_kind();
-            case THREEOFAKIND -> score += yatzy.three_of_a_kind();
-            case LARGESTRAIGHT -> score += yatzy.largeStraight();
-            case SMALLSTRAIGHT -> score += yatzy.smallStraight();
+        int scoreCategory = 0;
+        System.out.println(yatzy.getCategory());
+        switch(yatzy.getCategory()){
+            case ONES -> scoreCategory += yatzy.ones();
+            case TWOS -> scoreCategory += yatzy.twos();
+            case THREES -> scoreCategory += yatzy.threes();
+            case FOURS -> scoreCategory += yatzy.fours();
+            case FIVES -> scoreCategory += yatzy.fives();
+            case SIXES -> scoreCategory += yatzy.sixes();
+            case PAIR -> scoreCategory += yatzy.pair();
+            case TWOPARIES -> scoreCategory += yatzy.two_pairs();
+            case YATZY -> scoreCategory += yatzy.yatzy();
+            case CHANCE -> scoreCategory += yatzy.chance();
+            case FULLHOUSE -> scoreCategory += yatzy.fullHouse();
+            case FOUROFAKIND -> scoreCategory += yatzy.four_of_a_kind();
+            case THREEOFAKIND -> scoreCategory += yatzy.three_of_a_kind();
+            case LARGESTRAIGHT -> scoreCategory += yatzy.largeStraight();
+            case SMALLSTRAIGHT -> scoreCategory += yatzy.smallStraight();
             default -> {
                 System.out.println("Game over :( ");
                 throw new CategoryNotFoundException();}
         }
 
-        return score;
+        return scoreCategory;
     }
-    private static int[] inputDiceValues(Scanner scanner) {
+    private int[] inputDiceValues(Scanner scanner) {
         System.out.print("Entrez les valeurs des dés (séparées par un espace): ");
         String[] valuesStr = scanner.nextLine().split(" ");
-        int[] currentDice = new int[5];
+        int[] cDice = new int[5];
         for (int i = 0; i < Math.min(5, valuesStr.length); i++) {
             if( Integer.parseInt(valuesStr[i]) >= 1 && Integer.parseInt(valuesStr[i]) <= 6){
-                currentDice[i] = Integer.parseInt(valuesStr[i]);
+                cDice[i] = Integer.parseInt(valuesStr[i]);
             }
         }
-        return currentDice;
+        return cDice;
     }
 
     private Category inputCategory(Scanner scanner) throws CategoryNotFoundException {
-        System.out.print("Choisissez un numero catégorie: \n");
+        int categoryInput;
+        System.out.print("Voici la liste des catégories: \n");
         System.out.print("\b 1 : CHANCE\n");
         System.out.print("\b 2 : YATZY\n");
         System.out.print("\b 3 : ONES\n");
@@ -84,32 +91,44 @@ public class Joueur {
         System.out.print("\b 13 : SMALLSTRAIGHT\n");
         System.out.print("\b 14 : LARGESTRAIGHT\n");
         System.out.print("\b 15 : FULLHOUSE\n");
-        System.out.print("\n\n Be careful, the category cannot be used again in the remaining goes for that game.");
-        // while ida5el entier
-        int categoryInput = Integer.parseInt(scanner.nextLine());
+        
+       
+        System.out.print("\n Attention, la catégorie ne pourra pas être réutilisée pour les tours restants de cette partie.");
+        
+        
+        do {
+            System.out.print("\nVeuillez entrer un numero de catégorie entre 1 et 15 : ");
 
-        if( categoryInput >= 1 && categoryInput <= 15 && (categoriesInput.isEmpty() || !categoriesInput.contains(categoryInput))){
-            categoriesInput.add(categoryInput);
-            switch (categoryInput){
-                case 1 -> {return Category.CHANCE;}
-                case 2 -> {return Category.YATZY;}
-                case 3 -> {return Category.ONES;}
-                case 4 -> {return Category.TWOS;}
-                case 5 -> {return Category.THREES;}
-                case 6 -> {return Category.FOURS;}
-                case 7 -> {return Category.FIVES;}
-                case 8 -> {return Category.SIXES;}
-                case 9 -> {return Category.PAIR;}
-                case 10 -> {return Category.TWOPARIES;}
-                case 11 -> {return Category.THREEOFAKIND;}
-                case 12 -> {return Category.FOUROFAKIND;}
-                case 13 -> {return Category.SMALLSTRAIGHT;}
-                case 14 -> {return Category.LARGESTRAIGHT;}
-                case 15 -> {return Category.FULLHOUSE;}
-
-                default -> throw new CategoryNotFoundException();
+            while (!scanner.hasNextInt()) {
+                System.out.print("Veuillez entrer un ENTIER valide entre 1 et 15 : ");
+                scanner.next(); 
             }
-        }else {throw new CategoryNotFoundException();}
+
+            categoryInput = scanner.nextInt();
+
+        } while (categoryInput < 1 || categoryInput > 15 || (!categoriesInput.isEmpty() && categoriesInput.contains(categoryInput)));
+
+        categoriesInput.add(categoryInput);
+        switch (categoryInput){
+            case 1 -> {return Category.CHANCE;}
+            case 2 -> {return Category.YATZY;}
+            case 3 -> {return Category.ONES;}
+            case 4 -> {return Category.TWOS;}
+            case 5 -> {return Category.THREES;}
+            case 6 -> {return Category.FOURS;}
+            case 7 -> {return Category.FIVES;}
+            case 8 -> {return Category.SIXES;}
+            case 9 -> {return Category.PAIR;}
+            case 10 -> {return Category.TWOPARIES;}
+            case 11 -> {return Category.THREEOFAKIND;}
+            case 12 -> {return Category.FOUROFAKIND;}
+            case 13 -> {return Category.SMALLSTRAIGHT;}
+            case 14 -> {return Category.LARGESTRAIGHT;}
+            case 15 -> {return Category.FULLHOUSE;}
+
+            default -> throw new CategoryNotFoundException();
+            }
+        
 
     }
     public int getScore() {

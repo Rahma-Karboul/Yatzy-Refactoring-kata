@@ -1,15 +1,15 @@
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Welcome to Yatzy's game!");
+        System.out.println("\n\nBienvenue dans le jeu de Yatzy !");
 
-        System.out.println("Let's begin with the first player !");
+        System.out.println("\nCommençons par le premier joueur !");
         Joueur joueur1 = new Joueur();
         try {
             joueur1.Jouer();
         } catch (CategoryNotFoundException e) {
-            System.out.println("Game Over :( ");
+            System.out.println("\nGame Over :( ");
         }
-        System.out.println("Your total score is: "+ joueur1.getScore());
+        System.out.println("\nBien joué! Votre score est: "+ joueur1.getScore());
 
     }
 
