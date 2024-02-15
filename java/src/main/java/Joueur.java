@@ -10,6 +10,7 @@ public class Joueur {
 
     public void Jouer() throws CategoryNotFoundException {
     int currentRoll = 1;
+    int[] currentDice;
     categoriesInput = new HashSet<>();
 
     try (Scanner scanner = new Scanner(System.in)) {
@@ -17,7 +18,7 @@ public class Joueur {
             System.out.println("\nNouveau tour:");
 
             // Demander au joueur d'entrer manuellement les valeurs des dés
-            int[] currentDice = inputDiceValues(scanner);
+            currentDice = inputDiceValues();
             System.out.println("Résultat du lancer : " + Arrays.toString(currentDice));
 
             // Proposer au joueur de choisir une catégorie
@@ -26,18 +27,18 @@ public class Joueur {
             // Calculer le score pour le choix de catégorie
             Yatzy yatzy = new Yatzy(currentDice[0],currentDice[1],currentDice[2],currentDice[3],currentDice[4]);
             yatzy.setCategory(category);
-            System.out.println(yatzy.getCategory());
             int scoreCategory = calculeScore(yatzy);
             score += scoreCategory;
             // Afficher le score
             System.out.println("Score pour la catégorie '" + category + "': " + scoreCategory);
             currentRoll++;
         }
+    }catch(CategoryNotFoundException e){
+        System.out.println("error");
     }
 }
     public int calculeScore(Yatzy yatzy) throws CategoryNotFoundException {
         int scoreCategory = 0;
-        System.out.println(yatzy.getCategory());
         switch(yatzy.getCategory()){
             case ONES -> scoreCategory += yatzy.ones();
             case TWOS -> scoreCategory += yatzy.twos();
@@ -61,15 +62,18 @@ public class Joueur {
 
         return scoreCategory;
     }
-    private int[] inputDiceValues(Scanner scanner) {
+    private int[] inputDiceValues() {
         System.out.print("Entrez les valeurs des dés (séparées par un espace): ");
+        Scanner scanner = new Scanner(System.in);
         String[] valuesStr = scanner.nextLine().split(" ");
         int[] cDice = new int[5];
-        for (int i = 0; i < Math.min(5, valuesStr.length); i++) {
-            if( Integer.parseInt(valuesStr[i]) >= 1 && Integer.parseInt(valuesStr[i]) <= 6){
-                cDice[i] = Integer.parseInt(valuesStr[i]);
+        if(valuesStr.length >= 5) {
+            for (int i = 0; i < Math.min(5, valuesStr.length); i++) {
+                if (Integer.parseInt(valuesStr[i]) >= 1 && Integer.parseInt(valuesStr[i]) <= 6) {
+                    cDice[i] = Integer.parseInt(valuesStr[i]);
+                }
             }
-        }
+        }else System.out.println("Error! retry game");
         return cDice;
     }
 
@@ -91,11 +95,7 @@ public class Joueur {
         System.out.print("\b 13 : SMALLSTRAIGHT\n");
         System.out.print("\b 14 : LARGESTRAIGHT\n");
         System.out.print("\b 15 : FULLHOUSE\n");
-        
-       
         System.out.print("\n Attention, la catégorie ne pourra pas être réutilisée pour les tours restants de cette partie.");
-        
-        
         do {
             System.out.print("\nVeuillez entrer un numero de catégorie entre 1 et 15 : ");
 
@@ -128,13 +128,8 @@ public class Joueur {
 
             default -> throw new CategoryNotFoundException();
             }
-        
-
     }
     public int getScore() {
         return score;
-    }
-    public static void setCategoriesInput(Set<Integer> categoriesInput) {
-        Joueur.categoriesInput = categoriesInput;
     }
 }
